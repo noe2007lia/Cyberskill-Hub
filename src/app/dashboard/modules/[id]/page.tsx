@@ -13,16 +13,13 @@ import {
   CheckCircle2, 
   ChevronRight, 
   Zap, 
-  Sparkles, 
   Loader2, 
-  HelpCircle,
-  Lightbulb
+  HelpCircle
 } from "lucide-react";
 import Link from "next/link";
 import { doc, updateDoc, arrayUnion, increment } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
-import { generateModuleQuestion, GenerateModuleQuestionOutput } from "@/ai/flows/ai-dynamic-module-question-flow";
 
 export default function ModulePage() {
   const { id } = useParams();
@@ -34,11 +31,6 @@ export default function ModulePage() {
   const [isCompleted, setIsCompleted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState("");
-  
-  // AI Question states
-  const [aiTask, setAiTask] = useState<GenerateModuleQuestionOutput | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
     const mod = modules.find(m => m.id === id);
@@ -47,26 +39,10 @@ export default function ModulePage() {
       if (profile?.completedModules.includes(mod.id)) {
         setIsCompleted(true);
       }
-      loadAiTask(mod);
     } else {
       router.push("/dashboard");
     }
   }, [id, profile, router]);
-
-  async function loadAiTask(mod: Module) {
-    setAiLoading(true);
-    try {
-      const result = await generateModuleQuestion({
-        moduleTitle: mod.title,
-        moduleContent: mod.content
-      });
-      setAiTask(result);
-    } catch (error) {
-      console.error("Failed to generate AI task:", error);
-    } finally {
-      setAiLoading(false);
-    }
-  }
 
   async function handleComplete() {
     if (!profile || !module || isCompleted) return;
@@ -141,52 +117,26 @@ export default function ModulePage() {
             </div>
           </div>
 
-          {/* AI-Generated Task */}
+          {/* Static Task */}
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-primary">
-              <Sparkles className="w-6 h-6" />
-              <h3 className="text-xl font-headline font-bold">Heutige Challenge</h3>
+              <h3 className="text-xl font-headline font-bold">Modul Aufgabe</h3>
             </div>
             
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
                   <HelpCircle className="w-5 h-5 text-primary" />
-                  {aiLoading ? "Challenge wird generiert..." : (aiTask?.question || module.task)}
+                  {module.task}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {aiLoading ? (
-                  <div className="flex flex-col items-center py-8">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
-                    <p className="text-sm text-muted-foreground">Wir erstellen eine individuelle Aufgabe für dich...</p>
-                  </div>
-                ) : (
-                  <>
-                    <Textarea 
-                      placeholder="Schreibe hier deine Antwort..." 
-                      className="min-h-[120px] bg-background/50 border-primary/20 focus-visible:ring-primary"
-                      value={answer}
-                      onChange={(e) => setAnswer(e.target.value)}
-                    />
-                    <div className="flex justify-between items-center">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-xs text-muted-foreground"
-                        onClick={() => setShowHint(!showHint)}
-                      >
-                        <Lightbulb className="w-3 h-3 mr-1" />
-                        {showHint ? "Hinweis ausblenden" : "Tipp anzeigen"}
-                      </Button>
-                      {showHint && aiTask?.suggestedAnswer && (
-                        <div className="text-xs italic text-muted-foreground animate-in fade-in max-w-[70%] text-right">
-                          Tipp: {aiTask.suggestedAnswer}
-                        </div>
-                      )}
-                    </div>
-                  </>
-                )}
+                <Textarea 
+                  placeholder="Schreibe hier deine Antwort..." 
+                  className="min-h-[120px] bg-background/50 border-primary/20 focus-visible:ring-primary"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                />
               </CardContent>
             </Card>
           </div>
@@ -208,7 +158,7 @@ export default function ModulePage() {
             {!isCompleted ? (
               <Button 
                 onClick={handleComplete} 
-                disabled={loading || !answer.trim() || aiLoading}
+                disabled={loading || !answer.trim()}
                 className="w-full sm:w-auto font-bold px-8 h-12 text-lg shadow-lg shadow-primary/20"
               >
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Als erledigt markieren"}

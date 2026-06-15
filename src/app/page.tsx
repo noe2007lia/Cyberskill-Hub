@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -65,8 +64,8 @@ export default function Home() {
               </div>
               <div className="p-8 rounded-2xl bg-card border border-border/50 hover:border-primary/50 transition-colors group">
                 <Zap className="w-12 h-12 text-primary mb-6 group-hover:scale-110 transition-transform" />
-                <h3 className="text-xl font-headline font-bold mb-3">AI Support</h3>
-                <p className="text-muted-foreground">Nutze unseren KI-Assistenten, um komplexe Begriffe jederzeit einfach erklärt zu bekommen.</p>
+                <h3 className="text-xl font-headline font-bold mb-3">XP & Belohnungen</h3>
+                <p className="text-muted-foreground">Sammle Punkte für jedes abgeschlossene Modul und verdiene dir Zertifikate.</p>
               </div>
             </div>
           </div>

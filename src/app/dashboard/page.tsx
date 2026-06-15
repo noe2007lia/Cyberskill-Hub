@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, ArrowRight, Award, Trophy, ExternalLink, LayoutDashboard, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { ConceptClarifier } from "@/components/concept-clarifier";
 import { KAHOOT_LINK } from "@/lib/modules";
 
 export default function Dashboard() {
@@ -25,8 +24,8 @@ export default function Dashboard() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Progress Summary */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 border-primary/20 bg-gradient-to-br from-card to-secondary/20">
+      <section className="grid grid-cols-1 gap-6">
+        <Card className="border-primary/20 bg-gradient-to-br from-card to-secondary/20">
           <CardHeader>
             <CardTitle className="text-2xl font-headline">Dein Fortschritt</CardTitle>
             <CardDescription>Du hast {completedCount} von {totalCount} Modulen abgeschlossen.</CardDescription>
@@ -56,9 +55,6 @@ export default function Dashboard() {
             </div>
           </CardContent>
         </Card>
-
-        {/* AI Tool Mini */}
-        <ConceptClarifier />
       </section>
 
       {/* Modules List */}
