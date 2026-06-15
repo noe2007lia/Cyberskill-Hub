@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
@@ -7,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Circle, ArrowRight, Award, Trophy, Info, ExternalLink } from "lucide-react";
+import { CheckCircle2, Circle, ArrowRight, Award, Trophy, Info, ExternalLink, LayoutDashboard, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { ConceptClarifier } from "@/components/concept-clarifier";
