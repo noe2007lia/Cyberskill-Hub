@@ -1,0 +1,35 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "intro-cyber",
+      "description": "Digital shield and lock representing cybersecurity basics",
+      "imageUrl": "https://picsum.photos/seed/cyber1/800/600",
+      "imageHint": "cybersecurity shield"
+    },
+    {
+      "id": "phishing",
+      "description": "Hook catching an email envelope",
+      "imageUrl": "https://picsum.photos/seed/phishing/800/600",
+      "imageHint": "phishing email"
+    },
+    {
+      "id": "passwords",
+      "description": "Secure password login screen with dots",
+      "imageUrl": "https://picsum.photos/seed/pass/800/600",
+      "imageHint": "secure password"
+    },
+    {
+      "id": "social-eng",
+      "description": "Person in a hoodie representing social engineering",
+      "imageUrl": "https://picsum.photos/seed/social/800/600",
+      "imageHint": "hacker silhouette"
+    },
+    {
+      "id": "quiz",
+      "description": "Interactive quiz conceptual art",
+      "imageUrl": "https://picsum.photos/seed/quiz/800/600",
+      "imageHint": "quiz concept"
+    }
+  ]
+}
