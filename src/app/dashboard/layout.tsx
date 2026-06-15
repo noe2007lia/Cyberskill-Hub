@@ -1,14 +1,14 @@
 
 "use client";
 
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { ShieldCheck, LogOut, LayoutDashboard, User, Settings, ShieldAlert } from "lucide-react";
+import { ShieldCheck, LogOut, User, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, profile, loading, logout } = useAuth();
   const router = useRouter();
 
@@ -69,13 +69,5 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </main>
       </div>
     </div>
-  );
-}
-
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      <DashboardLayoutContent>{children}</DashboardLayoutContent>
-    </AuthProvider>
   );
 }
