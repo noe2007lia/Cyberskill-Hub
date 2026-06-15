@@ -2,9 +2,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged, User } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
 
 interface UserProfile {
   uid: string;
@@ -16,98 +13,75 @@ interface UserProfile {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: { uid: string; email: string; displayName: string } | null;
   profile: UserProfile | null;
   loading: boolean;
-  refreshProfile: () => Promise<void>;
+  completeModule: (moduleId: string, points: number) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<{ uid: string; email: string; displayName: string } | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (uid: string) => {
-    // Only try to fetch from Firestore if it's not the mock admin
-    if (uid === "admin-123") {
-      setProfile({
-        uid: "admin-123",
-        email: "admin@cyberskill.hub",
-        displayName: "Administrator",
-        role: "admin",
-        completedModules: [],
-        points: 999
-      });
-      return;
-    }
-
-    try {
-      const docRef = doc(db, "users", uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setProfile(docSnap.data() as UserProfile);
-      } else {
-        const newProfile: UserProfile = {
-          uid,
-          email: user?.email || "",
-          displayName: user?.displayName || "Learner",
-          role: "learner",
-          completedModules: [],
-          points: 0
-        };
-        await setDoc(docRef, newProfile);
-        setProfile(newProfile);
-      }
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-    }
-  };
-
-  const refreshProfile = async () => {
-    if (user) await fetchProfile(user.uid);
-  };
-
   useEffect(() => {
-    // 1. Check for mock login first
     const mockUserStr = localStorage.getItem("mock-user");
+    const storedProfileStr = localStorage.getItem("user-profile");
+
     if (mockUserStr) {
       try {
         const mockData = JSON.parse(mockUserStr);
-        setUser({ uid: mockData.uid, email: mockData.email, displayName: mockData.displayName } as any);
-        setProfile({
-          uid: mockData.uid,
-          email: mockData.email,
-          displayName: mockData.displayName,
-          role: mockData.role,
-          completedModules: [],
-          points: 999
-        });
-        setLoading(false);
-        return;
+        setUser({ uid: mockData.uid, email: mockData.email, displayName: mockData.displayName });
+        
+        if (storedProfileStr) {
+          setProfile(JSON.parse(storedProfileStr));
+        } else {
+          const initialProfile: UserProfile = {
+            uid: mockData.uid,
+            email: mockData.email,
+            displayName: mockData.displayName,
+            role: mockData.role || "learner",
+            completedModules: [],
+            points: 0
+          };
+          setProfile(initialProfile);
+          localStorage.setItem("user-profile", JSON.stringify(initialProfile));
+        }
       } catch (e) {
         localStorage.removeItem("mock-user");
+        localStorage.removeItem("user-profile");
       }
     }
-
-    // 2. Fallback to Firebase
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
-      if (fbUser) {
-        setUser(fbUser);
-        await fetchProfile(fbUser.uid);
-      } else {
-        setUser(null);
-        setProfile(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    setLoading(false);
   }, []);
 
+  const completeModule = (moduleId: string, points: number) => {
+    if (!profile) return;
+    
+    // Prevent double counting if already completed
+    if (profile.completedModules.includes(moduleId)) return;
+
+    const updatedProfile: UserProfile = {
+      ...profile,
+      completedModules: [...profile.completedModules, moduleId],
+      points: profile.points + points
+    };
+    
+    setProfile(updatedProfile);
+    localStorage.setItem("user-profile", JSON.stringify(updatedProfile));
+  };
+
+  const logout = () => {
+    localStorage.removeItem("mock-user");
+    setUser(null);
+    setProfile(null);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, completeModule, logout }}>
       {children}
     </AuthContext.Provider>
   );

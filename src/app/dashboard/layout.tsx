@@ -7,11 +7,9 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { ShieldCheck, LogOut, LayoutDashboard, User, Settings, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/firebase";
-import { signOut } from "firebase/auth";
 
 function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -30,11 +28,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
   if (!user) return null;
 
-  async function handleLogout() {
-    // Clear mock login
-    localStorage.removeItem("mock-user");
-    // Also sign out from firebase just in case
-    await signOut(auth);
+  function handleLogout() {
+    logout();
     router.push("/");
   }
 

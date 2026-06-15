@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,14 +18,12 @@ import {
   HelpCircle
 } from "lucide-react";
 import Link from "next/link";
-import { doc, updateDoc, arrayUnion, increment } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 export default function ModulePage() {
   const { id } = useParams();
   const router = useRouter();
-  const { profile, refreshProfile } = useAuth();
+  const { profile, completeModule } = useAuth();
   const { toast } = useToast();
   
   const [module, setModule] = useState<Module | null>(null);
@@ -44,33 +43,22 @@ export default function ModulePage() {
     }
   }, [id, profile, router]);
 
-  async function handleComplete() {
+  function handleComplete() {
     if (!profile || !module || isCompleted) return;
     
     setLoading(true);
-    try {
-      const userRef = doc(db, "users", profile.uid);
-      await updateDoc(userRef, {
-        completedModules: arrayUnion(module.id),
-        points: increment(module.points)
-      });
-      
-      await refreshProfile();
+    
+    // Simulate a short network delay for better UX, then save to localStorage via context
+    setTimeout(() => {
+      completeModule(module.id, module.points);
       setIsCompleted(true);
+      setLoading(false);
       
       toast({
-        title: "Modul abgeschlossen!",
-        description: `Du hast ${module.points} Punkte erhalten.`,
+        title: "Aufgabe erfolgreich abgegeben.",
+        description: `Du hast ${module.points} XP erhalten.`,
       });
-    } catch (error) {
-      toast({
-        title: "Fehler beim Speichern",
-        description: "Dein Fortschritt konnte nicht gespeichert werden.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    }, 600);
   }
 
   if (!module || !profile) return null;
@@ -117,7 +105,7 @@ export default function ModulePage() {
             </div>
           </div>
 
-          {/* Static Task */}
+          {/* Task Area */}
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-primary">
               <h3 className="text-xl font-headline font-bold">Modul Aufgabe</h3>
@@ -136,6 +124,7 @@ export default function ModulePage() {
                   className="min-h-[120px] bg-background/50 border-primary/20 focus-visible:ring-primary"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
+                  disabled={isCompleted}
                 />
               </CardContent>
             </Card>
@@ -147,7 +136,7 @@ export default function ModulePage() {
             {isCompleted ? (
               <div className="flex items-center gap-2 text-green-500 font-bold">
                 <CheckCircle2 className="w-6 h-6" />
-                <span>Abgeschlossen</span>
+                <span>Modul abgeschlossen</span>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground italic">Beantworte die Frage, um das Modul abzuschließen.</p>
@@ -161,7 +150,8 @@ export default function ModulePage() {
                 disabled={loading || !answer.trim()}
                 className="w-full sm:w-auto font-bold px-8 h-12 text-lg shadow-lg shadow-primary/20"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Als erledigt markieren"}
+                {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                {loading ? "Wird gespeichert..." : "Aufgabe abgeben"}
               </Button>
             ) : (
               nextModule ? (
