@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { modules, Module } from "@/lib/modules";
+import { modules, Module, KAHOOT_LINK } from "@/lib/modules";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,7 +15,8 @@ import {
   ChevronRight, 
   Zap, 
   Loader2, 
-  HelpCircle
+  HelpCircle,
+  ExternalLink
 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
@@ -48,7 +49,7 @@ export default function ModulePage() {
     
     setLoading(true);
     
-    // Simulate a short network delay for better UX, then save to localStorage via context
+    // Simulate a short delay then save progress
     setTimeout(() => {
       completeModule(module.id, module.points);
       setIsCompleted(true);
@@ -104,6 +105,24 @@ export default function ModulePage() {
               {module.content}
             </div>
           </div>
+
+          {/* Kahoot Link for the final module */}
+          {module.id === "m5" && (
+            <div className="flex flex-col items-center gap-6 p-8 rounded-2xl bg-accent/5 border border-accent/20 text-center animate-in zoom-in duration-500">
+              <div className="space-y-2">
+                <h3 className="text-xl font-headline font-bold text-accent">Bereit für den Endspurt?</h3>
+                <p className="text-muted-foreground">
+                  Teste dein Wissen im interaktiven Kahoot-Quiz und tritt gegen andere an!
+                </p>
+              </div>
+              <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold h-14 px-10 text-xl rounded-full shadow-xl shadow-accent/20">
+                <Link href={KAHOOT_LINK} target="_blank">
+                  Zum Kahoot-Quiz
+                  <ExternalLink className="w-5 h-5 ml-2" />
+                </Link>
+              </Button>
+            </div>
+          )}
 
           {/* Task Area */}
           <div className="space-y-6">
