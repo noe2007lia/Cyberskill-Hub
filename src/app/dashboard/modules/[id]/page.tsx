@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -6,11 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { modules, Module } from "@/lib/modules";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, 
   CheckCircle2, 
@@ -102,7 +99,6 @@ export default function ModulePage() {
 
   if (!module || !profile) return null;
 
-  const placeholder = PlaceHolderImages.find(img => img.id === module.image) || PlaceHolderImages[0];
   const nextModIndex = modules.findIndex(m => m.id === module.id) + 1;
   const nextModule = nextModIndex < modules.length ? modules[nextModIndex] : null;
 
@@ -125,11 +121,10 @@ export default function ModulePage() {
       <Card className="overflow-hidden border-none shadow-2xl bg-card/40 backdrop-blur-sm">
         <div className="relative h-64 md:h-80 w-full">
           <Image 
-            src={placeholder.imageUrl} 
+            src={module.imageUrl || "https://placehold.co/600x400.png"} 
             alt={module.title}
             fill
             className="object-cover opacity-60"
-            data-ai-hint={placeholder.imageHint}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent" />
           <div className="absolute bottom-6 left-6 right-6">

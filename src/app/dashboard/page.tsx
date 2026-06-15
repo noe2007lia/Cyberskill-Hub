@@ -1,16 +1,16 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { modules, Module, KAHOOT_LINK } from "@/lib/modules";
+import { modules } from "@/lib/modules";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, Circle, ArrowRight, Award, Trophy, Info, ExternalLink, LayoutDashboard, Zap } from "lucide-react";
+import { CheckCircle2, ArrowRight, Award, Trophy, ExternalLink, LayoutDashboard, Zap } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { ConceptClarifier } from "@/components/concept-clarifier";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { KAHOOT_LINK } from "@/lib/modules";
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -21,10 +21,6 @@ export default function Dashboard() {
   const totalCount = modules.length;
   const progressPercent = Math.round((completedCount / totalCount) * 100);
   const isAllFinished = completedCount === totalCount;
-
-  function getPlaceholder(id: string) {
-    return PlaceHolderImages.find(img => img.id === id) || PlaceHolderImages[0];
-  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -74,17 +70,15 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {modules.map((mod, idx) => {
             const isCompleted = profile.completedModules.includes(mod.id);
-            const placeholder = getPlaceholder(mod.image);
             
             return (
               <Card key={mod.id} className={`group overflow-hidden border-border/50 hover:border-primary/50 transition-all ${isCompleted ? 'bg-secondary/20' : ''}`}>
                 <div className="relative h-48 overflow-hidden">
                   <Image 
-                    src={placeholder.imageUrl} 
+                    src={mod.imageUrl || "https://placehold.co/600x400.png"} 
                     alt={mod.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
-                    data-ai-hint={placeholder.imageHint}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
                   {isCompleted && (
