@@ -30,23 +30,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchProfile = async (uid: string) => {
-    const docRef = doc(db, "users", uid);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      setProfile(docSnap.data() as UserProfile);
-    } else {
-      // If profile doesn't exist, this shouldn't normally happen if registration is done right, 
-      // but let's handle it for safety
-      const newProfile: UserProfile = {
-        uid,
-        email: user?.email || "",
-        displayName: user?.displayName || "Learner",
-        role: "learner",
+    // Only try to fetch from Firestore if it's not the mock admin
+    if (uid === "admin-123") {
+      setProfile({
+        uid: "admin-123",
+        email: "admin@cyberskill.hub",
+        displayName: "Administrator",
+        role: "admin",
         completedModules: [],
-        points: 0
-      };
-      await setDoc(docRef, newProfile);
-      setProfile(newProfile);
+        points: 999
+      });
+      return;
+    }
+
+    try {
+      const docRef = doc(db, "users", uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setProfile(docSnap.data() as UserProfile);
+      } else {
+        const newProfile: UserProfile = {
+          uid,
+          email: user?.email || "",
+          displayName: user?.displayName || "Learner",
+          role: "learner",
+          completedModules: [],
+          points: 0
+        };
+        await setDoc(docRef, newProfile);
+        setProfile(newProfile);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
     }
   };
 
@@ -55,18 +70,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        await fetchProfile(user.uid);
+    // 1. Check for mock login first
+    const mockUserStr = localStorage.getItem("mock-user");
+    if (mockUserStr) {
+      try {
+        const mockData = JSON.parse(mockUserStr);
+        setUser({ uid: mockData.uid, email: mockData.email, displayName: mockData.displayName } as any);
+        setProfile({
+          uid: mockData.uid,
+          email: mockData.email,
+          displayName: mockData.displayName,
+          role: mockData.role,
+          completedModules: [],
+          points: 999
+        });
+        setLoading(false);
+        return;
+      } catch (e) {
+        localStorage.removeItem("mock-user");
+      }
+    }
+
+    // 2. Fallback to Firebase
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        setUser(fbUser);
+        await fetchProfile(fbUser.uid);
       } else {
+        setUser(null);
         setProfile(null);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>

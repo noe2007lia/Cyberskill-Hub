@@ -31,6 +31,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   async function handleLogout() {
+    // Clear mock login
+    localStorage.removeItem("mock-user");
+    // Also sign out from firebase just in case
     await signOut(auth);
     router.push("/");
   }
